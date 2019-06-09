@@ -53,6 +53,8 @@ public class FullscreenActivity extends Activity
         }
     };
 
+    boolean skip = true;
+
     private void updateStatus()
     {
         final TextView tx = findViewById(R.id.fullscreen_content);
@@ -63,14 +65,21 @@ public class FullscreenActivity extends Activity
             @Override
             public void onResponse(JSONObject response)
             {
-                try
+                if (skip)
                 {
-                    JSONObject o = response.getJSONObject("data");
-                    tx.setText(String.valueOf((int)o.getDouble("amount")));
+                    skip = false;
                 }
-                catch (JSONException e)
+                else
                 {
-                    tx.setText("N/A");
+                    try
+                    {
+                        JSONObject o = response.getJSONObject("data");
+                        tx.setText(String.valueOf((int)o.getDouble("amount")));
+                    }
+                    catch (JSONException e)
+                    {
+                        tx.setText("N/A");
+                    }
                 }
             }
         },
