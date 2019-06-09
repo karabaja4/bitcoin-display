@@ -2,6 +2,7 @@ package com.example.bitcoinlcdticker4;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.TypedValue;
 import android.widget.TextView;
 import android.graphics.Typeface;
 import android.os.Handler;
@@ -74,7 +75,16 @@ public class FullscreenActivity extends Activity
                     try
                     {
                         JSONObject o = response.getJSONObject("data");
-                        tx.setText(String.valueOf((int)o.getDouble("amount")));
+                        int value = (int)o.getDouble("amount");
+                        tx.setText(String.valueOf(value));
+                        if (value >= 10000)
+                        {
+                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 270);
+                        }
+                        else
+                        {
+                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 330);
+                        }
                     }
                     catch (JSONException e)
                     {
