@@ -11,9 +11,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,12 +61,12 @@ public class FullscreenActivity extends Activity
     private void updateStatus()
     {
         final TextView tx = findViewById(R.id.fullscreen_content);
-        String url ="https://api.coinbase.com/v2/prices/BTC-USD/spot";
+        String url ="https://www.bitmex.com/api/v1/trade?symbol=XBT&count=1&reverse=true";
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>()
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>()
         {
             @Override
-            public void onResponse(JSONObject response)
+            public void onResponse(JSONArray response)
             {
                 if (skip)
                 {
@@ -74,8 +76,7 @@ public class FullscreenActivity extends Activity
                 {
                     try
                     {
-                        JSONObject o = response.getJSONObject("data");
-                        int value = (int)o.getDouble("amount");
+                        int value = (int)response.getJSONObject(0).getDouble("price");
                         tx.setText(String.valueOf(value));
                         if (value >= 10000)
                         {
