@@ -80,11 +80,11 @@ public class FullscreenActivity extends Activity
                         tx.setText(String.valueOf(value));
                         if (value >= 10000)
                         {
-                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 270);
+                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 360);
                         }
                         else
                         {
-                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 330);
+                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 420);
                         }
                     }
                     catch (JSONException e)
