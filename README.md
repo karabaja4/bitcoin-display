@@ -2,7 +2,7 @@
 
 Transform your old mobile phone into Bitcoin price LCD display:
 
-![alt text](https://karabaja4.blob.core.windows.net/stuff/btc_led.jpg)
+![Alt text](screenshot.png?raw=true)
 
 # Download APK
 
