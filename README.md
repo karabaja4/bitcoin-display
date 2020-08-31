@@ -2,7 +2,7 @@
 
 Transform your old mobile phone into Bitcoin price LCD display:
 
-![Alt text](screenshot.png?raw=true)
+![Alt text](screenshot.jpg?raw=true)
 
 # Download APK
 
