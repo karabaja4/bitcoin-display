@@ -1,21 +1,21 @@
 package com.example.bitcoinlcdticker4;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.TypedValue;
 import android.widget.TextView;
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.provider.Settings.Secure;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +24,8 @@ public class FullscreenActivity extends Activity
     private int mInterval = 5000;
     private Handler mHandler;
     private RequestQueue mQueue;
+    private String mUrl = "";
+    private String mAndroidId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -31,13 +33,38 @@ public class FullscreenActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        TextView tx = findViewById(R.id.fullscreen_content);
-        Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf");
-        tx.setTypeface(custom_font);
+        mAndroidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        mUrl = "https://avacyn.aerium.hr/tick/" + mAndroidId;
 
         mHandler = new Handler();
         mQueue = Volley.newRequestQueue(this);
         startRepeatingTask();
+    }
+
+    private boolean mTypefaceDigital = false;
+    private void SetText(String color, int size, String text)
+    {
+        TextView tx = findViewById(R.id.fullscreen_content);
+        if (mTypefaceDigital == false)
+        {
+            tx.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf"));
+            mTypefaceDigital = true;
+        }
+        tx.setTextColor(Color.parseColor(color));
+        tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        tx.setText(text);
+    }
+
+    private void SetError(String message)
+    {
+        TextView tx = findViewById(R.id.fullscreen_content);
+        tx.setTypeface(Typeface.DEFAULT);
+        mTypefaceDigital = false;
+        tx.setTextColor(Color.parseColor("#ff0000"));
+        tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+        tx.setText(message);
+
+        mInterval = 5000; // reset interval on error
     }
 
     Runnable mStatusChecker = new Runnable()
@@ -56,41 +83,32 @@ public class FullscreenActivity extends Activity
         }
     };
 
-    boolean skip = true;
-
     private void updateStatus()
     {
         final TextView tx = findViewById(R.id.fullscreen_content);
-        String url ="https://www.bitmex.com/api/v1/trade?symbol=XBT&count=1&reverse=true";
 
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>()
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, mUrl, null, new Response.Listener<JSONObject>()
         {
             @Override
-            public void onResponse(JSONArray response)
+            public void onResponse(JSONObject response)
             {
-                if (skip)
+                try
                 {
-                    skip = false;
+                    String text = response.getString("text");
+                    int size = response.getInt("size");
+                    String color = response.getString("color");
+                    int interval = response.getInt("interval");
+                    if (interval <= 0)
+                    {
+                        interval = 5000;
+                    }
+                    mInterval = interval;
+
+                    SetText(color, size, text);
                 }
-                else
+                catch (JSONException e)
                 {
-                    try
-                    {
-                        int value = (int)response.getJSONObject(0).getDouble("price");
-                        tx.setText(String.valueOf(value));
-                        if (value >= 10000)
-                        {
-                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 360);
-                        }
-                        else
-                        {
-                            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 420);
-                        }
-                    }
-                    catch (JSONException e)
-                    {
-                        tx.setText("N/A");
-                    }
+                    SetError("Parsing error");
                 }
             }
         },
@@ -99,7 +117,7 @@ public class FullscreenActivity extends Activity
             @Override
             public void onErrorResponse(VolleyError error)
             {
-                tx.setText("N/A");
+                SetError(mAndroidId);
             }
         });
 

@@ -13,9 +13,9 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:keepScreenOn="true"
-        android:text="88888"
+        android:text="Hello!"
         android:textColor="#0000FF"
-        android:textSize="360sp"
-        android:maxLines="1" />
+        android:textSize="32sp"
+        android:maxLines="10" />
 
 </LinearLayout>
