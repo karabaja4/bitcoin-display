@@ -42,13 +42,18 @@ public class FullscreenActivity extends Activity
     }
 
     private boolean mTypefaceDigital = false;
-    private void SetText(String color, int size, String text)
+    private void SetText(String color, int size, String text, boolean digital)
     {
         TextView tx = findViewById(R.id.fullscreen_content);
-        if (mTypefaceDigital == false)
+        if (digital && !mTypefaceDigital)
         {
             tx.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf"));
             mTypefaceDigital = true;
+        }
+        else if (!digital && mTypefaceDigital)
+        {
+            tx.setTypeface(Typeface.DEFAULT);
+            mTypefaceDigital = false;
         }
         tx.setTextColor(Color.parseColor(color));
         tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -58,8 +63,11 @@ public class FullscreenActivity extends Activity
     private void SetError(String message)
     {
         TextView tx = findViewById(R.id.fullscreen_content);
+
+        // errors only in default font
         tx.setTypeface(Typeface.DEFAULT);
         mTypefaceDigital = false;
+
         tx.setTextColor(Color.parseColor("#ff0000"));
         tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
         tx.setText(message);
@@ -85,8 +93,6 @@ public class FullscreenActivity extends Activity
 
     private void updateStatus()
     {
-        final TextView tx = findViewById(R.id.fullscreen_content);
-
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, mUrl, null, new Response.Listener<JSONObject>()
         {
             @Override
@@ -95,8 +101,10 @@ public class FullscreenActivity extends Activity
                 try
                 {
                     String text = response.getString("text");
-                    int size = response.getInt("size");
                     String color = response.getString("color");
+                    int size = response.getInt("size");
+                    boolean digital = response.getBoolean("digital");
+
                     int interval = response.getInt("interval");
                     if (interval <= 0)
                     {
@@ -104,11 +112,11 @@ public class FullscreenActivity extends Activity
                     }
                     mInterval = interval;
 
-                    SetText(color, size, text);
+                    SetText(color, size, text, digital);
                 }
                 catch (JSONException e)
                 {
-                    SetError("Parsing error");
+                    SetError(e.getMessage());
                 }
             }
         },
@@ -117,7 +125,12 @@ public class FullscreenActivity extends Activity
             @Override
             public void onErrorResponse(VolleyError error)
             {
-                SetError(mAndroidId);
+                String message = mAndroidId;
+                if (error != null && error.networkResponse != null)
+                {
+                    message += " (" + error.networkResponse.statusCode + ")";
+                }
+                SetError(message);
             }
         });
 

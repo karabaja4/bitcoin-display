@@ -16,6 +16,6 @@
         android:text="Hello!"
         android:textColor="#0000FF"
         android:textSize="32sp"
-        android:maxLines="10" />
+        android:maxLines="50" />
 
 </LinearLayout>
