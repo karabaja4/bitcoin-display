@@ -41,38 +41,60 @@ public class FullscreenActivity extends Activity
         startRepeatingTask();
     }
 
+    private TextView mTv = null;
+    private TextView GetTextView()
+    {
+        if (mTv == null)
+        {
+            mTv = findViewById(R.id.fullscreen_content);
+        }
+        return mTv;
+    }
+
     private boolean mTypefaceDigital = false;
     private void SetText(String color, int size, String text, boolean digital)
     {
-        TextView tx = findViewById(R.id.fullscreen_content);
-        if (digital && !mTypefaceDigital)
+        try
         {
-            tx.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf"));
-            mTypefaceDigital = true;
+            TextView tx = GetTextView();
+            if (digital && !mTypefaceDigital)
+            {
+                tx.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf"));
+                mTypefaceDigital = true;
+            }
+            else if (!digital && mTypefaceDigital)
+            {
+                tx.setTypeface(Typeface.DEFAULT);
+                mTypefaceDigital = false;
+            }
+            tx.setTextColor(Color.parseColor(color));
+            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+            tx.setText(text);
         }
-        else if (!digital && mTypefaceDigital)
+        catch (Exception ex)
         {
-            tx.setTypeface(Typeface.DEFAULT);
-            mTypefaceDigital = false;
         }
-        tx.setTextColor(Color.parseColor(color));
-        tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-        tx.setText(text);
     }
 
     private void SetError(String message)
     {
-        TextView tx = findViewById(R.id.fullscreen_content);
+        try
+        {
+            TextView tx = GetTextView();
 
-        // errors only in default font
-        tx.setTypeface(Typeface.DEFAULT);
-        mTypefaceDigital = false;
+            // errors only in default font
+            tx.setTypeface(Typeface.DEFAULT);
+            mTypefaceDigital = false;
 
-        tx.setTextColor(Color.parseColor("#ff0000"));
-        tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
-        tx.setText(message);
+            tx.setTextColor(Color.parseColor("#ff0000"));
+            tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+            tx.setText(message);
 
-        mInterval = 5000; // reset interval on error
+            mInterval = 5000; // reset interval on error
+        }
+        catch (Exception ex)
+        {
+        }
     }
 
     Runnable mStatusChecker = new Runnable()
@@ -83,6 +105,9 @@ public class FullscreenActivity extends Activity
             try
             {
                 updateStatus();
+            }
+            catch (Exception e)
+            {
             }
             finally
             {
@@ -114,7 +139,7 @@ public class FullscreenActivity extends Activity
 
                     SetText(color, size, text, digital);
                 }
-                catch (JSONException e)
+                catch (Exception e)
                 {
                     SetError(e.getMessage());
                 }
@@ -126,9 +151,15 @@ public class FullscreenActivity extends Activity
             public void onErrorResponse(VolleyError error)
             {
                 String message = mAndroidId;
-                if (error != null && error.networkResponse != null)
+                try
                 {
-                    message += " (" + error.networkResponse.statusCode + ")";
+                    if (error != null && error.networkResponse != null)
+                    {
+                        message += " (" + error.networkResponse.statusCode + ")";
+                    }
+                }
+                catch (Exception ex)
+                {
                 }
                 SetError(message);
             }
