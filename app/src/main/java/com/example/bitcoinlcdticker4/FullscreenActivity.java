@@ -109,10 +109,6 @@ public class FullscreenActivity extends Activity
             catch (Exception e)
             {
             }
-            finally
-            {
-                mHandler.postDelayed(mStatusChecker, mInterval);
-            }
         }
     };
 
@@ -143,6 +139,7 @@ public class FullscreenActivity extends Activity
                 {
                     SetError(e.getMessage());
                 }
+                mHandler.postDelayed(mStatusChecker, mInterval);
             }
         },
         new Response.ErrorListener()
@@ -162,6 +159,7 @@ public class FullscreenActivity extends Activity
                 {
                 }
                 SetError(message);
+                mHandler.postDelayed(mStatusChecker, mInterval);
             }
         });
 
