@@ -16,7 +16,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FullscreenActivity extends Activity
@@ -30,6 +29,12 @@ public class FullscreenActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        //<uses-permission android:name="android.permission.WAKE_LOCK" />
+        //import android.os.PowerManager;
+        //PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
+        //PowerManager.WakeLock lock = power.newWakeLock(PowerManager.FULL_WAKE_LOCK, "tick:mywakelock");
+        //lock.acquire();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
@@ -51,6 +56,16 @@ public class FullscreenActivity extends Activity
         return mTv;
     }
 
+    private Typeface mDigitalTypeface = null;
+    private Typeface GetDigitalTypeface()
+    {
+        if (mDigitalTypeface == null)
+        {
+            mDigitalTypeface = Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf");
+        }
+        return mDigitalTypeface;
+    }
+
     private boolean mTypefaceDigital = false;
     private void SetText(String color, int size, String text, boolean digital)
     {
@@ -59,7 +74,7 @@ public class FullscreenActivity extends Activity
             TextView tx = GetTextView();
             if (digital && !mTypefaceDigital)
             {
-                tx.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/7segment.ttf"));
+                tx.setTypeface(GetDigitalTypeface());
                 mTypefaceDigital = true;
             }
             else if (!digital && mTypefaceDigital)
