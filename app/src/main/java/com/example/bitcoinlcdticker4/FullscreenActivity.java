@@ -29,12 +29,6 @@ public class FullscreenActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        //<uses-permission android:name="android.permission.WAKE_LOCK" />
-        //import android.os.PowerManager;
-        //PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
-        //PowerManager.WakeLock lock = power.newWakeLock(PowerManager.FULL_WAKE_LOCK, "tick:mywakelock");
-        //lock.acquire();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
