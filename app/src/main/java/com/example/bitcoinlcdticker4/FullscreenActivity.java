@@ -37,6 +37,7 @@ public class FullscreenActivity extends Activity
 
         mHandler = new Handler();
         mQueue = Volley.newRequestQueue(this);
+
         startRepeatingTask();
     }
 
@@ -111,7 +112,10 @@ public class FullscreenActivity extends Activity
         {
             try
             {
-                updateStatus();
+                if (!mLock)
+                {
+                    updateStatus();
+                }
             }
             catch (Exception e)
             {
@@ -123,8 +127,10 @@ public class FullscreenActivity extends Activity
         }
     };
 
+    private boolean mLock = false;
     private void updateStatus()
     {
+        mLock = true;
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, mUrl, null, new Response.Listener<JSONObject>()
         {
             @Override
@@ -150,6 +156,10 @@ public class FullscreenActivity extends Activity
                 {
                     SetError(e.getMessage());
                 }
+                finally
+                {
+                    mLock = false;
+                }
             }
         },
         new Response.ErrorListener()
@@ -157,18 +167,28 @@ public class FullscreenActivity extends Activity
             @Override
             public void onErrorResponse(VolleyError error)
             {
-                String message = mAndroidId;
                 try
                 {
-                    if (error != null && error.networkResponse != null)
+                    String message = mAndroidId;
+                    try
                     {
-                        message += " (" + error.networkResponse.statusCode + ")";
+                        if (error != null && error.networkResponse != null)
+                        {
+                            message += " (" + error.networkResponse.statusCode + ")";
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                    }
+                    SetError(message);
                 }
                 catch (Exception ex)
                 {
                 }
-                SetError(message);
+                finally
+                {
+                    mLock = false;
+                }
             }
         });
 
