@@ -98,8 +98,6 @@ public class FullscreenActivity extends Activity
             tx.setTextColor(Color.parseColor("#ff0000"));
             tx.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
             tx.setText(message);
-
-            mInterval = 5000; // reset interval on error
         }
         catch (Exception ex)
         {
@@ -117,6 +115,10 @@ public class FullscreenActivity extends Activity
             }
             catch (Exception e)
             {
+            }
+            finally
+            {
+                mHandler.postDelayed(mStatusChecker, mInterval);
             }
         }
     };
@@ -148,7 +150,6 @@ public class FullscreenActivity extends Activity
                 {
                     SetError(e.getMessage());
                 }
-                mHandler.postDelayed(mStatusChecker, mInterval);
             }
         },
         new Response.ErrorListener()
@@ -168,7 +169,6 @@ public class FullscreenActivity extends Activity
                 {
                 }
                 SetError(message);
-                mHandler.postDelayed(mStatusChecker, mInterval);
             }
         });
 
