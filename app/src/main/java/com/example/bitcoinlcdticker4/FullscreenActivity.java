@@ -7,37 +7,21 @@ import android.util.TypedValue;
 import android.widget.TextView;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.provider.Settings.Secure;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONObject;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FullscreenActivity extends Activity
 {
-    private int mInterval = 5000;
     private Handler mHandler;
-    private RequestQueue mQueue;
-    private String mUrl = "";
-    private String mAndroidId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-
-        mAndroidId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        mUrl = "https://avacyn.aerium.hr/tick/" + mAndroidId;
-
         mHandler = new Handler();
-        mQueue = Volley.newRequestQueue(this);
-
         startRepeatingTask();
     }
 
@@ -112,87 +96,87 @@ public class FullscreenActivity extends Activity
         {
             try
             {
-                if (!mLock)
-                {
-                    updateStatus();
-                }
+                updateStatus();
             }
             catch (Exception e)
             {
             }
             finally
             {
-                mHandler.postDelayed(mStatusChecker, mInterval);
+                mHandler.postDelayed(mStatusChecker, 1000);
             }
         }
     };
 
-    private boolean mLock = false;
+    String mColors[] =
+    {
+        "#0000ff", // blue
+        "#00ff00", // green
+        "#00ffff", // cyan
+        "#ff0000", // red
+        "#ff00ff", // pink
+        "#ffff00", // yellow
+        "#ffffff"  // white
+    };
+
+    String morning = "Dobro jutro :)";
+    String day     = "Želim ti dobar dan :)";
+    String evening = "Želim ti ugodnu večer :)";
+    String night   = "Želim ti laku noć :)";
+
+    public String GetGreeting(int hour)
+    {
+        if (hour == 23 || (hour >= 0 && hour <= 3))
+        {
+            return night;
+        }
+        if (hour >= 4 && hour <= 11)
+        {
+            return morning;
+        }
+        if (hour >= 12 && hour <= 17)
+        {
+            return day;
+        }
+        if (hour >= 18 && hour <= 22)
+        {
+            return evening;
+        }
+        return null;
+    }
+
+    DateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss");
+
     private void updateStatus()
     {
-        mLock = true;
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, mUrl, null, new Response.Listener<JSONObject>()
+        try
         {
-            @Override
-            public void onResponse(JSONObject response)
+
+            long uts = System.currentTimeMillis();
+            long ts = uts / 1000;
+            Date date = new Date(uts);
+
+            int h = date.getHours();
+            int s = date.getSeconds();
+            String greeting = GetGreeting(h);
+
+            String[] words = greeting != null ? greeting.split("\\s+") : new String[]{};
+            String color = mColors[(int)(ts % mColors.length)];
+
+            int index = s - 30;
+            if (index >= 0 && index < words.length)
             {
-                try
-                {
-                    String text = response.getString("text");
-                    String color = response.getString("color");
-                    int size = response.getInt("size");
-                    boolean digital = response.getBoolean("digital");
-
-                    int interval = response.getInt("interval");
-                    if (interval <= 0)
-                    {
-                        interval = 5000;
-                    }
-                    mInterval = interval;
-
-                    SetText(color, size, text, digital);
-                }
-                catch (Exception e)
-                {
-                    SetError(e.getMessage());
-                }
-                finally
-                {
-                    mLock = false;
-                }
+                SetText(color, 235, words[index], false);
             }
-        },
-        new Response.ErrorListener()
+            else
+            {
+                SetText(color, 235, mDateFormat.format(date), true);
+            }
+        }
+        catch (Exception ex)
         {
-            @Override
-            public void onErrorResponse(VolleyError error)
-            {
-                try
-                {
-                    String message = mAndroidId;
-                    try
-                    {
-                        if (error != null && error.networkResponse != null)
-                        {
-                            message += " (" + error.networkResponse.statusCode + ")";
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                    SetError(message);
-                }
-                catch (Exception ex)
-                {
-                }
-                finally
-                {
-                    mLock = false;
-                }
-            }
-        });
-
-        mQueue.add(request);
+            SetError(ex.getMessage());
+        }
     }
 
     void startRepeatingTask()
