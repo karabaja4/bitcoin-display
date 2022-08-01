@@ -166,7 +166,7 @@ public class FullscreenActivity extends Activity
             int index = s - 30;
             if (index >= 0 && index < words.length)
             {
-                SetText(color, 235, words[index], false);
+                SetText(color, 215, words[index], false);
             }
             else
             {
