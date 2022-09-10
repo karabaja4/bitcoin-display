@@ -151,17 +151,17 @@ public class FullscreenActivity extends Activity
     {
         try
         {
-
             long uts = System.currentTimeMillis();
-            long ts = uts / 1000;
+            //long ts = uts / 1000;
             Date date = new Date(uts);
 
             int h = date.getHours();
             int s = date.getSeconds();
+            int m = date.getMinutes();
             String greeting = GetGreeting(h);
 
             String[] words = greeting != null ? greeting.split("\\s+") : new String[]{};
-            String color = mColors[(int)(ts % mColors.length)];
+            String color = mColors[(int)(m % mColors.length)];
 
             int index = s - 30;
             if (index >= 0 && index < words.length)
